@@ -41,17 +41,22 @@ const fetchUpdateBeerDesc = e => {
     })
 }
 
-const fetchAddReview = (beerObj, e) => {
+const fetchAddReview = (e) => {
     const id = e.target.dataset.id
     const newReview = e.target[0].value
-    beerObj.reviews.push(newReview)
+    let reviewsArray = [...reviewsList.children]
+        reviewsArray = reviewsArray.map(li => {
+           return li.textContent.slice(0, -1)
+        })
 
+    reviewsArray.push(newReview)
+   
     fetch(`${url}${id}`,{
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({reviews: beerObj.reviews})
+        body: JSON.stringify({reviews: reviewsArray})
     })
     .then(response => response.json())
     .then(() => {
@@ -60,20 +65,24 @@ const fetchAddReview = (beerObj, e) => {
             const deleteButton = document.createElement('button')
             deleteButton.className = "delete-btn"
             deleteButton.innerText = "X"
-            deleteButton.dataset.id = beerObj.id
+            deleteButton.dataset.id = e.target.dataset.id
             newLi.append(deleteButton)
         reviewsList.append(newLi)
         //pessimistic rendering - only updates if the PATCH was successful
     })
 }
 
-const fetchDeleteReview = (reviewLiToDelete, beerObj, e) => {
+const fetchDeleteReview = (reviewLiToDelete, e) => {
     const id = e.target.dataset.id
-    reviewLiToDelete.querySelector('button').remove()
     //removing button to find the review that will match the innerText of the review
-    const deletedReview = reviewLiToDelete.innerText
+    const deletedReview = reviewLiToDelete.textContent.slice(0, -1)
 
-    beerObj.reviews = beerObj.reviews.filter(review => {
+    let reviewsArray = [...reviewsList.children]
+        reviewsArray = reviewsArray.map(li => {
+            return li.textContent.slice(0, -1)
+        })
+
+    reviewsArray = reviewsArray.filter(review => {
         return review !== deletedReview
     })
     // filtering the beerObj.reviews array to get rid of the review to delete
@@ -83,7 +92,7 @@ const fetchDeleteReview = (reviewLiToDelete, beerObj, e) => {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({reviews: beerObj.reviews})
+        body: JSON.stringify({reviews: reviewsArray})
     })
     .then(response => response.json())
     .then(() => {
@@ -118,19 +127,6 @@ const renderBeerDetails = beerObj => {
         reviewsList.append(newLi)
     })
 
-    //using closure for the review form because I'll have access to beerObj.reviews
-    reviewForm.addEventListener('submit', e => {
-        e.preventDefault()
-        fetchAddReview(beerObj, e)
-        e.target.reset()
-    })
-
-    reviewsList.addEventListener('click', e => {
-        if (e.target.matches('.delete-btn')) {
-            const reviewLiToDelete = e.target.closest('li') 
-            fetchDeleteReview(reviewLiToDelete, beerObj, e)
-        }
-    })
 }
 
 const renderMenu = beersArray => {
@@ -160,6 +156,19 @@ navMenu.addEventListener('click', e => {
     if (e.target.matches('li')){
         const id = e.target.dataset.id
         fetchBeerDetails(id)
+    }
+})
+
+reviewForm.addEventListener('submit', e => {
+    e.preventDefault()
+    fetchAddReview(e)
+    e.target.reset()
+})
+
+reviewsList.addEventListener('click', e => {
+    if (e.target.matches('.delete-btn')) {
+        const reviewLiToDelete = e.target.closest('li') 
+        fetchDeleteReview(reviewLiToDelete, e)
     }
 })
 
