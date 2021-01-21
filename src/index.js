@@ -5,6 +5,7 @@ const beerDescForm = beerDetails.querySelector('.description')
 const reviewForm = beerDetails.querySelector('.review-form')
 const reviewsList = beerDetails.querySelector('.reviews')
 const url = `http://localhost:3000/beers/`
+let reviewsArray = []
 
 // fetch requests
 const fetchMenu = () => {
@@ -41,10 +42,6 @@ const fetchUpdateBeerDesc = e => {
 const fetchAddReview = (e) => {
     const id = e.target.dataset.id
     const newReview = e.target[0].value
-    let reviewsArray = [...reviewsList.children]
-        reviewsArray = reviewsArray.map(li => {
-           return li.textContent.slice(0, -1)
-        })
 
     reviewsArray.push(newReview)
    
@@ -74,15 +71,10 @@ const fetchDeleteReview = (reviewLiToDelete, e) => {
     //removing button to find the review that will match the innerText of the review
     const deletedReview = reviewLiToDelete.textContent.slice(0, -1)
 
-    let reviewsArray = [...reviewsList.children]
-        reviewsArray = reviewsArray.map(li => {
-            return li.textContent.slice(0, -1)
-        })
-
     reviewsArray = reviewsArray.filter(review => {
         return review !== deletedReview
     })
-    // filtering the beerObj.reviews array to get rid of the review to delete
+    // filtering the reviewsArray to get rid of the review to delete
 
     fetch(`${url}${id}`,{
         method: 'PATCH',
@@ -112,8 +104,9 @@ const renderBeerDetails = beerObj => {
 
     reviewForm.dataset.id = beerObj.id
 
+    reviewsArray = beerObj.reviews
     reviewsList.innerHTML = ""
-    beerObj.reviews.forEach(review => {
+    reviewsArray.forEach(review => {
         const newLi = document.createElement('li')
             newLi.innerText = review
             const deleteButton = document.createElement('button')
