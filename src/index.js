@@ -1,6 +1,3 @@
-// ALL core deliverables are complete upon first rendering of the page, there's an issue with the adding/deleting reviews part
-//once switched to a different beer
-
 // global variables
 const navMenu = document.querySelector('header').querySelector('ul')
 const beerDetails = document.querySelector('.beer-details')
